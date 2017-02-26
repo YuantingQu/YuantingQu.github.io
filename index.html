@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>AQY Web-mapping Final Project</title>
+
+    <style type = "text/css">
+
+        #map_canvas {height: 95%}
+        #about{height: 100%}
+        #mySidenav{margin-top: 3%}
+
+    </style>
+
+    <style type = "text/css">
+        /* The side navigation menu */
+        .sidenav {
+            height: 100%; /* 100% Full-height */
+            width: 0; /* 0 width - change this with JavaScript */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Stay on top */
+            top: 0;
+            left: 0;
+            opacity: 0.9;
+            background-color: #111; /* Black*/
+            overflow-x: hidden; /* Disable horizontal scroll */
+            padding-top: 60px; /* Place content 60px from the top */
+            transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+        }
+
+        /* The navigation menu links */
+        .sidenav a {
+            padding: 1px 1px 1px 32px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #ffffff;
+            display: block;
+            transition: 0.3s
+        }
+
+        /* When you mouse over the navigation links, change their color */
+        .sidenav a:hover, .offcanvas a:focus{
+            color: #e85419;
+        }
+
+        /* Position and style the close button (top right corner) */
+        .sidenav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+        #main {
+            transition: margin-left .5s;
+            padding: 20px;
+        }
+
+        /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+        @media screen and (max-height: 450px) {
+            .sidenav {padding-top: 15px;}
+            .sidenav a {font-size: 18px;}
+        }
+
+    </style>
+
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyDuDlld7EV2ykKBZ0Hbmm29boPotsNqJsU&sensor=false"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://docs.google.com/uc?authuser=0&id=0B4kZkQ86t3l5ODBPNUpheE9rR1U&export=download"></script>
+    <script src="js/modernizr.custom.js"></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+
+
+    <!-- Custom Fonts -->
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+
+    <!-- Plugin CSS -->
+    <link href="vendor/magnific-popup/magnific-popup.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href= "css/slider.css" />
+    <link rel="stylesheet" type="text/css" href="css/slicebox.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="css/agency.min.css" rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/creative.min.css" rel="stylesheet">
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+
+
+    <script type = "text/javascript">
+        var map;
+        google.load('visualization', '1');
+        var FusionLayer = new google.maps.FusionTablesLayer();
+        var job_array = [];
+        var JOB_TITLE = [];
+        var NAME_OF_OR = [];
+        var infoWindow;
+        //var Position = [];
+
+//Onload map
+        function initialize() {
+
+            var styles = [{"featureType":"all","elementType":"labels","stylers":[{"visibility":"on"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"administrative.country","elementType":"labels.text.fill","stylers":[{"color":"#e5c163"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#c4c4c4"}]},{"featureType":"administrative.neighborhood","elementType":"labels.text.fill","stylers":[{"color":"#e5c163"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":21},{"visibility":"on"}]},{"featureType":"poi.business","elementType":"geometry","stylers":[{"visibility":"on"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#e5c163"},{"lightness":"0"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"color":"#e5c163"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#575757"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.stroke","stylers":[{"color":"#2c2c2c"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#999999"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":17}]}];
+            var styledMapType = new google.maps.StyledMapType(styles, {name: "Dark Style"});
+            //give a location to worcester variable
+            var worcester = new google.maps.LatLng(36.013853, -25.872084);
+            var mapOptions = {
+                center: worcester,
+                zoom: 3,
+                mapTypeControlOptions:{
+                    mapTypeIds:[google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, "Dark Style"],
+                    position: google.maps.ControlPosition.BOTTOM_CENTER
+                },
+                mapTypeId: "Dark Style"
+            };
+            //create a new map, then call mapOptions
+            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+            var centerControlDiv = document.createElement('div');
+            var centerControl = new CenterControl(centerControlDiv, map);
+
+            centerControlDiv.index = 1;
+            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(centerControlDiv);
+
+            //combine The name with styledmaptype together
+            map.mapTypes.set("Dark Style", styledMapType);
+
+            //query for everything
+            var query =
+                    "SELECT 'X', 'Y'" +
+                    " FROM 1MGxuh8-jsBrs41bTNzYSHO6235b8WbBqp23rDgx- ";
+            query = encodeURIComponent(query);
+            var newQuery = new google.visualization.Query(
+                    'https://www.google.com/fusiontables/gvizdata?tq=' + query);
+            newQuery.send(
+                    function(response) {
+                        var markers = [];
+                        var numRows = response.getDataTable().getNumberOfRows();
+                        if(numRows != 645){
+                            if (numRows != 0){
+                                // For each row in the table, create a marker
+                                var lat = [];
+                                var lng = [];
+                                var marker = [];
+                                var Position = [];
+                                for (var i = 0; i < numRows; i++) {
+
+                                    lat[i] = response.getDataTable().getValue(i, 1);
+                                    lng[i] = response.getDataTable().getValue(i, 0);
+                                    Position[i] = new google.maps.LatLng(lat[i], lng[i]);
+
+                                    marker[i] = new google.maps.Marker({
+                                        map: map,
+                                        position: Position[i]
+                                    });
+                                    markers.push(marker[i]);
+
+                                }
+                                var markerCluster = new MarkerClusterer(map, markers,
+                                        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                            }
+                        }
+                    });
+            FusionLayer.setMap(map);
+        }
+
+//initial function, which decides which function to be triggered(check or search)
+        function initialize_n(person_input, program) {
+
+            var styles = [{"featureType":"all","elementType":"labels","stylers":[{"visibility":"on"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#000000"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#000000"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#000000"},{"lightness":17},{"weight":1.2}]},{"featureType":"administrative.country","elementType":"labels.text.fill","stylers":[{"color":"#e5c163"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#c4c4c4"}]},{"featureType":"administrative.neighborhood","elementType":"labels.text.fill","stylers":[{"color":"#e5c163"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":20}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":21},{"visibility":"on"}]},{"featureType":"poi.business","elementType":"geometry","stylers":[{"visibility":"on"}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#e5c163"},{"lightness":"0"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"color":"#e5c163"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":18}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#575757"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.stroke","stylers":[{"color":"#2c2c2c"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":16}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#999999"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#000000"},{"lightness":17}]}];
+            var styledMapType = new google.maps.StyledMapType(styles, {name: "Dark Style"});
+            //give a location to worcester variable
+            var worcester = new google.maps.LatLng(38.639700, -94.932830);
+            var mapOptions = {
+                center: worcester,
+                zoom: 5,
+                mapTypeControlOptions:{
+                    mapTypeIds:[google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, "Dark Style"],
+                    position: google.maps.ControlPosition.BOTTOM_CENTER
+                },
+                mapTypeId: "Dark Style"
+            };
+            //create a new map, then call mapOptions
+            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+            //combine The name with styledmaptype together
+            map.mapTypes.set("Dark Style", styledMapType);
+
+            var centerControlDiv = document.createElement('div');
+            var centerControl = new CenterControl(centerControlDiv, map);
+
+            centerControlDiv.index = 1;
+            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(centerControlDiv);
+// Decides to use check box function or search function
+            if(person_input){
+                LayerQuery1(FusionLayer, person_input, map);
+            }
+            if(program != null){
+                checkbox(FusionLayer, program, map);
+            }
+//            }
+        }
+
+// generate a list of job titles to be used after in search function.
+        function LayerQuery1(FusionLayer, person_input, map) {
+            //query for a list of job
+            var query_job =
+                "SELECT 'JOB_TITLE'" +
+                " FROM 1MGxuh8-jsBrs41bTNzYSHO6235b8WbBqp23rDgx- ";
+            query_job = encodeURIComponent(query_job);
+            var newQuery_job = new google.visualization.Query(
+                'https://www.google.com/fusiontables/gvizdata?tq=' + query_job);
+            newQuery_job.send(
+                function (response1) {
+                    var numRows = response1.getDataTable().getNumberOfRows();
+                    if (numRows != 645) {
+                        if (numRows != 0) {
+
+                            for (var i = 0; i < numRows; i++) {
+                                job_array[i] = response1.getDataTable().getValue(i, 0);
+                            }
+                        }
+                    }
+                });
+            LayerQuery(FusionLayer, person_input, map);
+        }
+
+// search function
+        function LayerQuery(FusionLayer, person_input, map) {
+
+            var query =
+                    "SELECT 'NAME_OF_OR', 'JOB_TITLE' , 'X', 'Y', 'Program', 'Graduation'" +
+                    " FROM 1MGxuh8-jsBrs41bTNzYSHO6235b8WbBqp23rDgx- WHERE JOB_TITLE CONTAINS IGNORING CASE '"
+                    + person_input + "'";
+            query = encodeURIComponent(query);
+            var newQuery = new google.visualization.Query(
+                    'https://www.google.com/fusiontables/gvizdata?tq=' + query);
+            newQuery.send(
+                    function(response) {
+                        var markers = [];
+                        var numRows = response.getDataTable().getNumberOfRows();
+                        if(numRows != 645){
+                            if (numRows != 0){
+                                // For each row in the table, create a marker
+                                var lat = [];
+                                var lng = [];
+                                var Program = [];
+                                var Graduation = [];
+                                var marker = [];
+                                var Position = [];
+                                for (i = 0; i < numRows; i++) {
+                                    NAME_OF_OR[i] = response.getDataTable().getValue(i, 0);
+                                    JOB_TITLE[i] = response.getDataTable().getValue(i, 1);
+                                    lat[i] = response.getDataTable().getValue(i, 3);
+                                    lng[i] = response.getDataTable().getValue(i, 2);
+                                    Program[i] = response.getDataTable().getValue(i, 4);
+                                    Graduation[i] = response.getDataTable().getValue(i, 5);
+                                    Position[i] = new google.maps.LatLng(lat[i], lng[i]);
+                                    var test = job_array.indexOf(JOB_TITLE[i]);
+                                    if (test != -1){
+                                        marker[i] = new google.maps.Marker({
+                                            map: map,
+                                            position: Position[i]
+                                        });
+                                        markers.push(marker[i]);
+
+                                        var infoWindowOptions = {
+                                            content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i]+ '<br>Graduation Year: ' + Graduation[i]
+                                        };
+                                        infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                        marker_click(marker[i], map, infoWindow);
+                                    }
+                                }
+                                //markercluster is a function from google map api
+                                var markerCluster = new MarkerClusterer(map, markers,
+                                        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                            }
+                        }
+                    });
+            FusionLayer.setMap(map);
+            marker.addListener('click', function() {
+                infoWindow.open(map, marker);
+            });
+        }
+
+//next step, put infowindow variable in the marker_click function
+        function marker_click(marker, map, infoWindow){
+            marker.addListener('click', function() {
+                infoWindow.open(map, marker);
+            });
+            map.addListener('click', function() {
+//                infoWindow.setContent(JOB_TITLE);
+                infoWindow.close();
+            });
+        }
+
+//radio button (checkbox function)
+        function checkbox(FusionLayer, program, map, id) {
+            var markers = [];
+            if(true)
+            {
+                var query =
+                        "SELECT 'NAME_OF_OR', 'JOB_TITLE' , 'X', 'Y', 'Program', 'Graduation'" +
+                        " FROM 1MGxuh8-jsBrs41bTNzYSHO6235b8WbBqp23rDgx- WHERE Program CONTAINS IGNORING CASE '"
+                        + program + "'";
+                query = encodeURIComponent(query);
+                var newQuery = new google.visualization.Query(
+                        'https://www.google.com/fusiontables/gvizdata?tq=' + query);
+                newQuery.send(
+                        function (response) {
+                            var numRows = response.getDataTable().getNumberOfRows();
+                            if (numRows != 645) {
+                                if (numRows != 0) {
+                                    // For each row in the table, create a marker
+                                    var lat = [];
+                                    var lng = [];
+                                    var NAME_OF_OR = [];
+                                    var Program = [];
+                                    var marker = [];
+                                    var Graduation = [];
+                                    var Position = [];
+                                    for (var i = 0; i < numRows; i++) {
+                                        NAME_OF_OR[i] = response.getDataTable().getValue(i, 0);
+                                        JOB_TITLE[i] = response.getDataTable().getValue(i, 1);
+                                        lat[i] = response.getDataTable().getValue(i, 3);
+                                        lng[i] = response.getDataTable().getValue(i, 2);
+                                        Program[i] = response.getDataTable().getValue(i, 4);
+                                        Graduation[i] = response.getDataTable().getValue(i, 5);
+                                        Position[i] = new google.maps.LatLng(lat[i], lng[i]);
+                                        if (Program[i] == 'IDSC') {
+                                            marker[i] = new google.maps.Marker({
+                                                map: map,
+                                                position: Position[i]
+                                            });
+                                            markers.push(marker[i]);
+                                            var infoWindowOptions = {
+                                                content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i] + '<br>Graduation Year: ' + Graduation[i]
+//                                            content:JOB_TITLE[i] + "/n" +
+//                                            NAME_OF_OR[i]
+                                            };
+                                            infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                            marker_click(marker[i], map, JOB_TITLE[i],infoWindow);
+                                        }
+                                        if (Program[i] == 'GISDE') {
+                                            marker[i] = new google.maps.Marker({
+                                                map: map,
+                                                position: Position[i]
+                                            });
+                                            markers.push(marker[i]);
+                                            var infoWindowOptions = {
+                                                content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i]+ '<br>Graduation Year: ' + Graduation[i]
+                                            };
+                                            infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                            marker_click(marker[i], map, JOB_TITLE[i],infoWindow);
+                                        }
+                                        if (Program[i] == 'CDP') {
+                                            marker[i] = new google.maps.Marker({
+                                                map: map,
+                                                position: Position[i]
+                                            });
+                                            markers.push(marker[i]);
+                                            var infoWindowOptions = {
+                                                content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i]+ '<br>Graduation Year: ' + Graduation[i]
+                                            };
+                                            infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                            marker_click(marker[i], map, JOB_TITLE[i],infoWindow);
+                                        }
+                                        if (Program[i] == 'ES&P') {
+                                            marker[i] = new google.maps.Marker({
+                                                map: map,
+                                                position: Position[i]
+                                            });
+                                            markers.push(marker[i]);
+
+                                            var infoWindowOptions = {
+                                                content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i]+ '<br>Graduation Year: ' + Graduation[i]
+                                            };
+                                            infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                            marker_click(marker[i], map, JOB_TITLE[i],infoWindow);
+                                        }
+                                        if (Program[i] == 'Dual(GSOM-CDP)' || Program[i] == 'DUAL_ESP_MBA' ) {
+                                            marker[i] = new google.maps.Marker({
+                                                map: map,
+                                                position: Position[i]
+                                            });
+                                            markers.push(marker[i]);
+
+                                            var infoWindowOptions = {
+                                                content: 'Job Title: ' + JOB_TITLE[i] + '<br>Organization: ' + NAME_OF_OR[i]+ '<br>Graduation Year: ' + Graduation[i]
+                                            };
+                                            infoWindow = new google.maps.InfoWindow(infoWindowOptions);
+                                            marker_click(marker[i], map, JOB_TITLE[i],infoWindow);
+                                        }
+                                    }
+
+                                    var markerCluster = new MarkerClusterer(map, markers,
+                                            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                                }
+                            }
+                        });
+                FusionLayer.setMap(map);
+            }
+            else{
+                marker = null;
+            }
+        }
+
+//This the function to style the Alumni query Icon and add Listener to trigger the side navigation bar
+        function CenterControl(controlDiv, map) {
+
+            // Set CSS for the control border.
+            var controlUI = document.createElement('div');
+            controlUI.style.backgroundColor = '#E5C163';
+            controlUI.style.border = '0px solid #EBEBEB';
+            controlUI.style.borderRadius = '15px';
+            controlUI.style.boxShadow = '0 0px 10px rgba(200,200,200,.7)';
+            controlUI.style.cursor = 'pointer';
+            controlUI.style.marginTop = '40px';
+            controlUI.style.marginRight = '70px';
+            controlUI.style.textAlign = 'center';
+            controlUI.title = 'Click to launch the side navigation';
+            controlDiv.appendChild(controlUI);
+
+
+            // Set CSS for the control interior.
+            var controlText = document.createElement('div');
+            controlText.style.color = 'rgb(43,43,43)';
+            controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+            controlText.style.fontSize = '20px';
+            controlText.style.lineHeight = '40px';
+            controlText.style.fontWeight='bold';
+            controlText.style.paddingLeft = '5px';
+            controlText.style.paddingRight = '5px';
+            controlText.innerHTML = 'Query Alumni';
+            controlUI.appendChild(controlText);
+
+            // Setup the click event listeners: simply set the map to Chicago.
+            controlUI.addEventListener('click', function() {
+                openNav();
+            });
+
+        }
+
+//This function open the side navigation bar
+        function openNav() {
+            document.getElementById("mySidenav").style.width = "250px";
+            document.getElementById("main").style.marginLeft = "250px";
+            document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+        }
+
+//This function open the side navigation bar
+        /* Set the width of the side navigation to 0 and the left margin of the page content to 0, and the background color of body to white */
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("main").style.marginLeft = "0";
+            document.body.style.backgroundColor = "white";
+        }
+
+    </script>
+
+</head>
+
+<body  id="page-top" onload = "initialize();" >
+
+    <!--This is the section of top navigation bar-->
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">ALUMNI HOMEPAGE</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="page-scroll" href="#about">Map</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#portfolio">Resources</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#team">Team</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--This is the section of homepage-->
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+                <h1 id="homeHeading">Clark University Department of International Development for Community and Environment</h1>
+                <p style="font-size: 25px; font-weight:bold"> A Webmap of Alumni Distribution</p>
+                <hr>
+                <p>Create by: Ahna, Qiming, Yuanting</p>
+                <a href="#about" class="btn btn-primary btn-xl page-scroll">Go to the map!</a>
+            </div>
+        </div>
+    </header>
+
+    <!--This is the section that contains the map and side navigation bar-->
+    <div id="about">
+        <div id = "map_canvas"> </div>
+        <div id="mySidenav" class="sidenav" style="margin-top:2.5%">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a><input type = "text"  style="color:black" id = "search_box" placeholder="Search Job Keyword"><button style="width: 90%" class = "btn btn-primary" onclick = "initialize_n(document.getElementById('search_box').value)">Search</button></a>
+
+            <a style="margin-top: 15%">Choose Program </a>
+            <a>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="group1" value="Butter" onclick= "initialize_n('','GISDE')" > GISDE<br>
+                    </label>
+                </div>
+            </a>
+            <a>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="group1" value="Butter" onclick= "initialize_n('','CDP')"  > CDP<br>
+                    </label>
+                </div>
+            </a>
+            <a>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="group1" value="Butter" onclick= "initialize_n('','IDSC')" > IDSC<br>
+                    </label>
+                </div>
+            </a>
+            <a>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="group1" value="Butter" onclick= "initialize_n('','ES&P')" > ES&P<br>
+                    </label>
+                </div>
+            </a>
+            <a>
+                <div class="checkbox">
+                    <label>
+                        <input type="radio" name="group1" value="Butter" onclick= "initialize_n('','DUAL')" > Dual<br>
+                    </label>
+                </div>
+            </a>
+            <div class="row" style="height:20px"></div>
+        </div>
+    </div>
+
+<!--This is the section of resource-->
+    <section id="portfolio" style="padding-top: 1%; height: 90%">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading" style="font-size: 50px; font-weight: 600">Project Resources</h2>
+                    <h3 class="section-subheading text-muted">Below are our resources for creating this project:</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row">
+                <div class="col-md-6 col-sm-6 portfolio-item">
+                    <a href="https://clarkuedu-my.sharepoint.com/personal/yuqu_clarku_edu/Documents/Webmapping_FP_presentation1.pptx?d=w30e2e29c018146efbf49579a4a0ca301&e=4%3A710a83e1dcc54b1c95fe576f6484fd8f" class="portfolio-link" data-toggle="modal">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/portfolio/data.png" width="600px" height="450px" class="img-responsive" alt="">
+                    </a>
+                    <div class="portfolio-caption">
+                        <h4 style="font-weight: 600">Introduction & Dataset</h4>
+                        <p class="text-muted">IDCE Alumni Database</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 portfolio-item">
+                    <a href="https://clarkuedu-my.sharepoint.com/personal/yuqu_clarku_edu/Documents/Webmapping_FP_presentation2.pptx?d=w19283ca5bde2431592fa08644889da10&e=4%3A7f3fcd9b39c34323b50a3a5874359eb6" class="portfolio-link" data-toggle="modal">
+                        <div class="portfolio-hover">
+                            <div class="portfolio-hover-content">
+                                <i class="fa fa-plus fa-3x"></i>
+                            </div>
+                        </div>
+                        <img src="img/portfolio/code.png" class="img-responsive" alt="">
+                    </a>
+                    <div class="portfolio-caption">
+                        <h4 style="font-weight: 600">Codes</h4>
+                        <p class="text-muted">Google Map API, JQuery, etc..</p>
+                    </div>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 portfolio-item">
+                        <a href="https://clarkuedu-my.sharepoint.com/personal/yuqu_clarku_edu/Documents/Webmapping_FP_presentation3.pptx?d=w1950eb7723ab49678360a3061506218e&e=4%3Aefdf3d4024bc42dba4e313dbca99f99a" class="portfolio-link" data-toggle="modal">
+                            <div class="portfolio-hover">
+                                <div class="portfolio-hover-content">
+                                    <i class="fa fa-plus fa-3x"></i>
+                                </div>
+                            </div>
+                            <img src="img/portfolio/golden.png" class="img-responsive" alt="">
+                        </a>
+                        <div class="portfolio-caption">
+                            <h4 style="font-weight: 600">Website Design</h4>
+                            <p class="text-muted">Bootstrap theme</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 portfolio-item">
+                        <a href="https://clarkuedu-my.sharepoint.com/personal/yuqu_clarku_edu/Documents/Webmapping_FP_presentation4.pptx?d=w6a529d6020e6408eb4a2b33ed811fca6&e=4%3Af9bdb69cd33c48d6a485b3a61bc9d502" class="portfolio-link" data-toggle="modal">
+                            <div class="portfolio-hover">
+                                <div class="portfolio-hover-content">
+                                    <i class="fa fa-plus fa-3x"></i>
+                                </div>
+                            </div>
+                            <img src="img/portfolio/The-Future.jpg" class="img-responsive" alt="">
+                        </a>
+                        <div class="portfolio-caption">
+                            <h4 style="font-weight: 600">Limitations & Future Work</h4>
+                            <p class="text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--This is the section of References-->
+    <section>
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                            <div class="copyright">References</div>
+                        <ul class="list-inline quicklinks">
+                            <li><a href="https://support.google.com/fusiontables/answer/2571232?hl=en" target="_blank">https://support.google.com/fusiontables/answer/2571232?hl=en</a>
+                            </li>
+                        </ul>
+                        <ul class="list-inline quicklinks">
+                            <li><a href="https://getbootstrap.com/css/" target="_blank">http://getbootstrap.com/css/</a>
+                            </li>
+                        </ul>
+                        <ul class="list-inline quicklinks">
+                            <li><a href="https://www.w3schools.com/" target="_blank">http://www.w3schools.com/</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="copyright">Class</div>
+                        <ul class="list-inline quicklinks">
+                            <li><a href="https://www.clarku.edu/" target="_blank">Clark University</a> - WEB MAPPING & OPEN SOURCE GIS, 2016 Fall.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
+
+    <!--This is the section of Team-->
+    <section id="team" class="bg-light-gray" style="height:100%">
+        <div class="container">
+            <div class="row"></div>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading" style="font-weight: bold">Our Amazing Team</h2>
+                    <h3 class="section-subheading text-muted">GISDE Master Candidates, Clark University.</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="team-member">
+                        <img src="img/team/1.jpg" class="img-responsive img-circle" alt="">
+                        <h4 style="font-weight: bold">Ahna Miller</h4>
+                        <p class="text-muted">Lead Developer/Writer</p>
+                        <ul class="list-inline social-buttons">
+                            <li><a href="https://www.linkedin.com/in/ahna-miller-284b5b84?authType=NAME_SEARCH&authToken=ZtZH&locale=en_US&trk=tyah&trkInfo=clickedVertical%3Amynetwork%2CclickedEntityId%3A301458628%2CauthType%3ANAME_SEARCH%2Cidx%3A1-1-1%2CtarId%3A1480991633736%2Ctas%3Aahna"><i class="fa fa-linkedin"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="team-member">
+                        <img src="img/team/2.jpg" class="img-responsive img-circle" alt="">
+                        <h4 style="font-weight: bold">Qiming Shi</h4>
+                        <p class="text-muted">Lead Developer</p>
+                        <ul class="list-inline social-buttons">
+                            <li><a href="https://www.linkedin.com/in/qiming-shi-b55946113?authType=OUT_OF_NETWORK&authToken=o8_1&locale=en_US&srchid=4783846271480991700552&srchindex=1&srchtotal=4587&trk=vsrp_people_res_name&trkInfo=VSRPsearchId%3A4783846271480991700552%2CVSRPtargetId%3A477105905%2CVSRPcmpt%3Aprimary%2CVSRPnm%3Atrue%2CauthType%3AOUT_OF_NETWORK"><i class="fa fa-linkedin"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="team-member">
+                        <img src="img/team/3.jpg" class="img-responsive img-circle" alt="">
+                        <h4 style="font-weight: bold">Yuanting Qu</h4>
+                        <p class="text-muted">Lead Developer/Designer</p>
+                        <ul class="list-inline social-buttons">
+                            <li><a href="https://www.linkedin.com/in/yuanting-qu-b57262114?trk=hp-identity-photo"><i class="fa fa-linkedin"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--This is the section of Contact Info-->
+    <section id="contact" style="background-color:#F05F40">
+        <div class="container" style="color: white">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading" style="color:white;font-weight: 600">Let's Get In Touch!</h2>
+                    <hr class="primary">
+                    <p>Want to make a contribution? Have a suggestion? Feel free contact us!</p>
+                </div>
+                <div class="col-lg-4 col-lg-offset-2 text-center">
+                    <i class="fa fa-phone fa-3x sr-contact"></i>
+                    <p>(508) 793-7201</p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fa fa-envelope-o fa-3x sr-contact"></i>
+                    <p><a href="mailto:your-email@your-domain.com" style="color:#0D57A3">idce@clarku.edu</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--This is the section of tags of Web Application(pop up markers)-->
+    <section id="services" style="height:50%">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="service-box">
+                    <i class="fa fa-4x fa-diamond text-primary sr-icons"></i>
+                    <h3>Networking</h3>
+                    <!--<p class="text-muted">Our templates are updated regularly so they don't break.</p>-->
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="service-box">
+                    <i class="fa fa-4x fa-paper-plane text-primary sr-icons"></i>
+                    <h3>Outreach</h3>
+                    <!--<p class="text-muted">You can use this theme as is, or you can make changes!</p>-->
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="service-box">
+                    <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i>
+                    <h3>For Hire</h3>
+                    <!--<p class="text-muted">We update dependencies to keep things fresh.</p>-->
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="service-box">
+                    <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
+                    <h3>Coding with Love</h3>
+                    <!--<p class="text-muted">You have to make your websites with love these days!</p>-->
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+    <script src="vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="vendor/scrollreveal/scrollreveal.min.js"></script>
+    <script src="vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="js/creative.min.js"></script>
+
+</body>
+</html>
